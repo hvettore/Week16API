@@ -1,14 +1,55 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Globalization;
 using Newtonsoft.Json;
+
+
 
 namespace WeatherLogApp
 {
     class Program
     {
+        static readonly HttpClient client = new HttpClient();
         static void Main(string[] args)
         {
+            Console.Clear();
+            var cities = new Dictionary<string, (string Latitude, string Longitude)>
+            {
+                { "Grimstad", ("58.34", "8.59") },
+                { "Oslo", ("59.91", "10.75") },
+                { "Bergen", ("60.39", "5.32") },
+                { "London", ("51.51", "-0.13") },
+                { "Berlin", ("52.52", "13.41") },
+                { "Paris", ("48.86", "2.35") },
+                { "New York", ("40.71", "-74.01") }
+            };
+
+            string chosenCity;
+            (string Latitude, string Longitude) coordinates;
+            
+
+            Console.WriteLine("This is Hugo's Weather Logging Application!");
+
+            do
+            {
+                Console.WriteLine("\nPlease enter the city you want to get the weather data for:");
+                foreach (var city in cities.Keys)
+                {
+                    Console.WriteLine(city);
+                }
+
+                chosenCity = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(chosenCity))
+                {
+                    chosenCity = "Grimstad";
+                }
+
+            } while (!cities.TryGetValue(chosenCity, out coordinates));
+
             WeatherLog weatherLog = LoadWeatherLog();
-            Console.WriteLine("This is Hugo's Weather Loggin Application!");
+
 
             while (true)
             {
@@ -29,7 +70,7 @@ namespace WeatherLogApp
                         break;
                     case "3":
                         SaveWeatherLog(weatherLog);
-                        Console.WriteLine("Exiting Weather Loggin App...");
+                        Console.WriteLine("Exiting Weather Logging App...");
                         return;
                     default:
                         Console.WriteLine("Invalid choice. Please enter a valid input.");
@@ -40,6 +81,8 @@ namespace WeatherLogApp
 
         static void LogWeatherData(WeatherLog weatherLog)
         {
+            
+            
             Console.WriteLine("\nEnter Weather Data:");
 
             Console.Write("Date (yyyy-mm-dd): ");
@@ -52,10 +95,10 @@ namespace WeatherLogApp
             Console.Write("Temperature (Celsius): ");
             float temperature = float.Parse(Console.ReadLine());
 
-            Console.Write("Precipitation (mm): ");
-            float precipitation = float.Parse(Console.ReadLine());
+            Console.Write("Wind Speed (m/s): ");
+            float wind_speed = float.Parse(Console.ReadLine());
 
-            WeatherData newData = new WeatherData(date, temperature, precipitation);
+            WeatherData newData = new WeatherData(date, temperature, wind_speed);
             weatherLog.AddWeatherData(newData);
 
             Console.WriteLine("Weather data logged successfully!");
@@ -128,13 +171,13 @@ namespace WeatherLogApp
     {
         public DateTime Date { get; set; }
         public float Temperature { get; set; }
-        public float Precipitation { get; set; }
+        public float WindSpeed { get; set; }
 
-        public WeatherData(DateTime date, float temperature, float precipitation)
+        public WeatherData(DateTime date, float temperature, float wind_speed)
         {
             Date = date;
             Temperature = temperature;
-            Precipitation = precipitation;
+            WindSpeed = wind_speed;
         }
     }
 
@@ -162,7 +205,7 @@ namespace WeatherLogApp
                     found = true;
                     Console.WriteLine($"Weather Report for {date.ToShortDateString()}:");
                     Console.WriteLine($"Temperature: {data.Temperature}°C");
-                    Console.WriteLine($"Precipitation: {data.Precipitation}mm");
+                    Console.WriteLine($"Wind Speed: {data.WindSpeed}m/s");
                     break;
                 }
             }
@@ -186,7 +229,7 @@ namespace WeatherLogApp
                     found = true;
                     Console.WriteLine($"Date: {data.Date.ToShortDateString()}");
                     Console.WriteLine($"Temperature: {data.Temperature}°C");
-                    Console.WriteLine($"Precipitation: {data.Precipitation}mm");
+                    Console.WriteLine($"Wind Speed: {data.WindSpeed}m/s");
                     Console.WriteLine();
                 }
             }
@@ -208,7 +251,7 @@ namespace WeatherLogApp
                     found = true;
                     Console.WriteLine($"Date: {data.Date.ToShortDateString()}");
                     Console.WriteLine($"Temperature: {data.Temperature}°C");
-                    Console.WriteLine($"Precipitation: {data.Precipitation}mm");
+                    Console.WriteLine($"Wind Speed: {data.WindSpeed}m/s");
                     Console.WriteLine();
                 }
             }
