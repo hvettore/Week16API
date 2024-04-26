@@ -29,3 +29,10 @@ public class Instant
 {
     public Details details { get; set; }
 }
+
+public class WeatherLogEntry
+{
+    public DateTime Date { get; set; }
+    public Details UserMeasurements { get; set; }
+    public Details YrMeasurements { get; set; }
+}
