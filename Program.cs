@@ -9,16 +9,67 @@ namespace WeatherLogApp
     class Program
     {
         static HttpClient client = new HttpClient();
-        static Task Main(string[] args)
-        {
-            CitySelector();
-            WeatherLog weatherLog = new WeatherLog();
-            FetchAPI();
-            MenuPrint(weatherLog);
+        
 
+        static async Task Main(string[] args)
+        {
+            Console.Clear();
+            Console.WriteLine("This is Hugo's Weather Loggin Application!");
+            WeatherLog weatherLog = new WeatherLog();
+            MenuPrint(weatherLog);
         }
 
-        public static void CitySelector()
+        public static async Task MenuPrint(WeatherLog weatherLog)
+        {
+            while (true)
+            {
+                Console.WriteLine("\nMenu:");
+                Console.WriteLine("1. Log New Weather Data");
+                Console.WriteLine("2. View Logged Reports");
+                Console.WriteLine("3. Exit");
+                Console.Write("Enter your choice: ");
+                string choice = Console.ReadLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        await LogWeatherData(weatherLog);
+                        break;
+                    case "2":
+                        ViewReports(weatherLog);
+                        break;
+                    case "3":
+                        SaveWeatherLog(weatherLog);
+                        return;
+                    default:
+                        Console.WriteLine("Invalid choice. Please enter a valid input.");
+                        break;
+                }
+            }
+        }
+
+        static async Task LogWeatherData(WeatherLog weatherLog)
+        {
+            Console.WriteLine("\nEnter Weather Data:");
+
+            var coordinates = await CitySelector();
+            var apiDataYR = await FetchWeatherData(coordinates);
+
+            Console.Write("Date (yyyy-mm-dd): ");
+            DateTime date;
+            while (!DateTime.TryParse(Console.ReadLine(), out date))
+            {
+                Console.Write("Invalid date format. Please enter date in yyyy-mm-dd format: ");
+            }
+            Details userMeasurements = GetUserMeasurements();
+            WeatherData newData = new WeatherData(date, userMeasurements.air_temperature, userMeasurements.wind_speed, userMeasurements.relative_humidity, apiDataYR);
+            weatherLog.AddWeatherData(newData);
+
+            Console.WriteLine("Weather data logged successfully!");
+        }
+
+
+        public async static Task<(string Latitude, string Longitude)> CitySelector()
         {
             var cities = new Dictionary<string, (string Latitude, string Longitude)>
             {
@@ -26,10 +77,9 @@ namespace WeatherLogApp
             { "Oslo", ("59.91", "10.75") },
             };
 
-            (string Latitude, string Longitude) coordinates;
-            string chosenCity;
 
-            Console.WriteLine("This is Hugo's Weather Loggin Application!");
+            string chosenCity;
+            (string Latitude, string Longitude) coordinates;
 
             while (true)
             {
@@ -54,8 +104,40 @@ namespace WeatherLogApp
                 }
 
                 Console.WriteLine("Invalid city name.");
+
+
+            }
+            return coordinates;
+        }
+
+
+
+        public async static Task<Details> FetchWeatherData((string Latitude, string Longitude) coordinates)
+        {
+            string url = $"https://api.met.no/weatherapi/locationforecast/2.0/compact?lat={coordinates.Latitude}&lon={coordinates.Longitude}";
+            try
+            {
+                HttpResponseMessage response = await client.GetAsync(url);
+                Console.WriteLine($"HTTP response status code: {response.StatusCode}");
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+
+                WeatherForecast forecast = JsonConvert.DeserializeObject<WeatherForecast>(responseBody);
+                Details apiDataYR = forecast.properties.timeseries[0].data.instant.details;
+
+                return apiDataYR;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("\nException Caught!");
+                Console.WriteLine("Message :{0} ", e.Message);
+                return null;
             }
         }
+
+
+
+
         public static Details GetUserMeasurements()
         {
             Details userMeasurements = new Details();
@@ -71,35 +153,8 @@ namespace WeatherLogApp
 
             return userMeasurements;
         }
-        public async static void FetchAPI()
-        {
-            Details userMeasurements = GetUserMeasurements();
-            string url = $"https://api.met.no/weatherapi/locationforecast/2.0/compact?lat={coordinates.Latitude}&lon={coordinates.Longitude}";
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("Week16API (https://github.com/HVettore/Week16API)");
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode();
-                string responseBody = await response.Content.ReadAsStringAsync();
 
-                WeatherForecast forecast = JsonConvert.DeserializeObject<WeatherForecast>(responseBody);
-                Details apiDataYR = forecast.properties.timeseries[0].data.instant.details;
 
-                WeatherLogEntry logEntry = new WeatherLogEntry
-                {
-                    Date = DateTime.Now,
-                    UserMeasurements = userMeasurements,
-                    YrMeasurements = apiDataYR
-                };
-                SaveLogEntry(logEntry);
-
-            }
-            catch (HttpRequestException e)
-            {
-                Console.WriteLine("\nException Caught!");
-                Console.WriteLine("Message :{0} ", e.Message);
-            }
-        }
         public static void SaveLogEntry(WeatherLogEntry logEntry)
         {
             List<WeatherLogEntry> entries;
@@ -125,60 +180,16 @@ namespace WeatherLogApp
             }
         }
 
-        public static void MenuPrint(WeatherLog weatherLog)
-        {
-            while (true)
-            {
-                Console.WriteLine("\nMenu:");
-                Console.WriteLine("1. Log New Weather Data");
-                Console.WriteLine("2. View Logged Reports");
-                Console.WriteLine("3. Exit");
-                Console.Write("Enter your choice: ");
-                string choice = Console.ReadLine();
-
-                switch (choice)
-                {
-                    case "1":
-                        LogWeatherData(weatherLog);
-                        break;
-                    case "2":
-                        ViewReports(weatherLog);
-                        break;
-                    case "3":
-                        SaveWeatherLog(weatherLog);
-                        return;
-                    default:
-                        Console.WriteLine("Invalid choice. Please enter a valid input.");
-                        break;
-                }
-            }
-
-        }
 
 
 
-        static void LogWeatherData(WeatherLog weatherLog)
-        {
-            Console.WriteLine("\nEnter Weather Data:");
 
-            Console.Write("Date (yyyy-mm-dd): ");
-            DateTime date;
-            while (!DateTime.TryParse(Console.ReadLine(), out date))
-            {
-                Console.Write("Invalid date format. Please enter date in yyyy-mm-dd format: ");
-            }
 
-            GetUserMeasurements();
-
-            WeatherData newData = new WeatherData(date, userMeasurements.air_temperature, userMeasurements.wind_speed, userMeasurements.relative_humidity);
-            weatherLog.AddWeatherData(newData);
-
-            Console.WriteLine("Weather data logged successfully!");
-        }
 
 
         static void ViewReports(WeatherLog weatherLog)
         {
+            Console.Clear();
             Console.WriteLine("\nView Reports:");
             Console.WriteLine("1. Daily Report");
             Console.WriteLine("2. Weekly Report");
@@ -189,6 +200,7 @@ namespace WeatherLogApp
             switch (choice)
             {
                 case "1":
+                    Console.Clear();
                     Console.Write("Enter date for daily report (yyyy-mm-dd): ");
                     DateTime dailyDate;
                     while (!DateTime.TryParse(Console.ReadLine(), out dailyDate))
@@ -198,6 +210,7 @@ namespace WeatherLogApp
                     weatherLog.PrintDailyReport(dailyDate);
                     break;
                 case "2":
+                    Console.Clear();
                     Console.Write("Enter start date for weekly report (yyyy-mm-dd): ");
                     DateTime startDate;
                     while (!DateTime.TryParse(Console.ReadLine(), out startDate))
@@ -207,6 +220,7 @@ namespace WeatherLogApp
                     weatherLog.PrintWeeklyReport(startDate);
                     break;
                 case "3":
+                    Console.Clear();
                     Console.Write("Enter month and year for monthly report (yyyy-mm): ");
                     DateTime month;
                     while (!DateTime.TryParseExact(Console.ReadLine(), "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out month))
