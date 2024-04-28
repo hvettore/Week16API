@@ -4,13 +4,13 @@ public static class Constants
     public const string UserAgent = "Hugo's WeatherLogApp";
     public const string WeatherApiUrl = "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat={0}&lon={1}";
 
-    public const string cityChoose = "Choose a city from the list:";
+    public const string cityChoose = "Choose a city from the list:\n";
     public const string cityInvalid = "Invalid choice. Please enter a city from the list.";
 
     public const string menuOptionOne = "1. Log weather";
     public const string menuOptionTwo = "2. View logs";
     public const string menuOptionThree = "3. Exit";
-    public const string menuChoice = "Enter your choice: ";
+    public const string menuChoice = "\nEnter your choice: ";
     public const string menuChoiceInvalid = "Invalid choice. Please enter 1, 2, or 3.";
 
     public const string menuChoiceOne = "1";
@@ -27,7 +27,7 @@ public static class Constants
 
     public const string logViewOptions = "1. View logs for a specific date\n2. View logs for a week\n3. View logs for a month\n";
     public const string logViewDateEnter = "Enter the date (yyyy-mm-dd) of the log you want to view: ";
-    public const string logViewWeeklyParse = "yyyy-MM-dd";
+    public const string logViewWeeklyParse = "yyyy-mm-dd";
     public const string logViewMonthYearEnter = "Enter the month and year (yyyy-mm) you want to view: ";
     public const string logViewDate = "Date: {0}. Temperature: {1}, Wind Speed: {2}, Humidity: {3}";
     public const string logViewNoLogsDate = "No logs available for {1}.";
@@ -35,6 +35,10 @@ public static class Constants
 
     public const string fetchWeatherDataException = "\nException Caught!";
     public const string fetchWeatherDataErrorMessage = "Message :{0} ";
+
+    public const string pressEnterToReturn = "\nPress Enter to return to the main menu.";
+
+    public const string invalidDateFormat = "Invalid date format. Please enter in yyyy-mm-dd format.";
 }
 
 public static class CityCoords
@@ -49,7 +53,6 @@ public static class CityCoords
         {"London", ("51.5074", "0.1278")},
         {"Sydney", ("-33.8688", "151.2093")},
         {"Cairo", ("30.0444", "31.2357")},
-        {"Rio de Janeiro", ("-22.9068", "-43.1729")},
         {"Moscow", ("55.7558", "37.6176")}
     };
 }

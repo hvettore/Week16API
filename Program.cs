@@ -1,5 +1,6 @@
 ﻿using System.Reflection.Metadata;
 using Newtonsoft.Json;
+using System.Globalization;
 
 class Program
 {
@@ -8,6 +9,7 @@ class Program
 
     static async Task Main(string[] args)
     {
+        Console.Clear();
         client.DefaultRequestHeaders.UserAgent.ParseAdd(Constants.UserAgent);
 
         Console.WriteLine(Constants.cityChoose);
@@ -20,7 +22,10 @@ class Program
         while (true)
         {
             Console.Write(Constants.menuChoice);
-            chosenCity = Console.ReadLine();
+
+            chosenCity = Console.ReadLine()?.ToLowerInvariant() ?? string.Empty;
+            chosenCity = char.ToUpperInvariant(chosenCity[0]) + chosenCity[1..];
+
             if (CityCoords.cities.ContainsKey(chosenCity))
             {
                 break;
@@ -33,13 +38,14 @@ class Program
 
         (string Latitude, string Longitude) coordinates = CityCoords.cities[chosenCity];
 
+        Console.Clear();
         while (true)
         {
             Console.WriteLine(Constants.menuOptionOne);
             Console.WriteLine(Constants.menuOptionTwo);
             Console.WriteLine(Constants.menuOptionThree);
             Console.Write(Constants.menuChoice);
-            string choice = Console.ReadLine();
+            string choice = Console.ReadLine() ?? string.Empty;
 
             if (choice == Constants.menuChoiceOne)
             {
@@ -62,12 +68,32 @@ class Program
 
     static async Task LogWeather((string Latitude, string Longitude) coordinates)
     {
-        Console.Write(Constants.datePrompt);
-        string date = Console.ReadLine();
+        Console.Clear();
+
+        string date;
+        while (true)
+        {
+            Console.Write(Constants.datePrompt);
+            date = Console.ReadLine() ?? string.Empty;
+            if (DateTime.TryParseExact(date, Constants.logViewWeeklyParse, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+            {
+                break;
+            }
+            else
+            {
+                Console.WriteLine(Constants.invalidDateFormat);
+            }
+        }
+
+
+
+
         Console.Write(Constants.temperaturePrompt);
         double temperature = double.Parse(Console.ReadLine());
+
         Console.Write(Constants.windSpeedPrompt);
         double windSpeed = double.Parse(Console.ReadLine());
+
         Console.Write(Constants.humidityPrompt);
         double humidity = double.Parse(Console.ReadLine());
 
@@ -95,6 +121,11 @@ class Program
         }
         weatherLogs[date] = userWeatherDetails;
         File.WriteAllText(logFilePath, JsonConvert.SerializeObject(weatherLogs));
+
+        Console.WriteLine(Constants.pressEnterToReturn);
+        while (Console.ReadKey(true).Key != ConsoleKey.Enter) { }
+        Console.Clear();
+
     }
 
     static void ViewLogs()
