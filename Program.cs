@@ -10,22 +10,8 @@ class Program
     {
         client.DefaultRequestHeaders.UserAgent.ParseAdd(Constants.UserAgent);
 
-        Dictionary<string, (string Latitude, string Longitude)> cities = new Dictionary<string, (string Latitude, string Longitude)>
-        {
-            {"Oslo", ("59.9139", "10.7522")},
-            {"Grimstad", ("58.3444", "8.5897")},
-            {"Kristiansand", ("58.1464", "7.9950")},
-            {"New York City", ("40.7128", "-74.0060")},
-            {"Tokyo", ("35.6895", "139.6917")},
-            {"London", ("51.5074", "0.1278")},
-            {"Sydney", ("-33.8688", "151.2093")},
-            {"Cairo", ("30.0444", "31.2357")},
-            {"Rio de Janeiro", ("-22.9068", "-43.1729")},
-            {"Moscow", ("55.7558", "37.6176")}
-        };
-
         Console.WriteLine(Constants.cityChoose);
-        foreach (var city in cities.Keys)
+        foreach (var city in CityCoords.cities.Keys)
         {
             Console.WriteLine(city);
         }
@@ -35,7 +21,7 @@ class Program
         {
             Console.Write(Constants.menuChoice);
             chosenCity = Console.ReadLine();
-            if (cities.ContainsKey(chosenCity))
+            if (CityCoords.cities.ContainsKey(chosenCity))
             {
                 break;
             }
@@ -45,7 +31,7 @@ class Program
             }
         }
 
-        (string Latitude, string Longitude) coordinates = cities[chosenCity];
+        (string Latitude, string Longitude) coordinates = CityCoords.cities[chosenCity];
 
         while (true)
         {
