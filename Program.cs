@@ -1,13 +1,14 @@
-﻿using Newtonsoft.Json;
+﻿using System.Reflection.Metadata;
+using Newtonsoft.Json;
 
 class Program
 {
     static HttpClient client = new HttpClient();
-    static string logFilePath = "weatherLogs.json";
+    static string logFilePath = Constants.LogFilePath;
 
     static async Task Main(string[] args)
     {
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("Hugo's WeatherLogApp");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd(Constants.UserAgent);
 
         Dictionary<string, (string Latitude, string Longitude)> cities = new Dictionary<string, (string Latitude, string Longitude)>
         {
@@ -23,7 +24,7 @@ class Program
             {"Moscow", ("55.7558", "37.6176")}
         };
 
-        Console.WriteLine("Choose a city from the list:");
+        Console.WriteLine(Constants.cityChoose);
         foreach (var city in cities.Keys)
         {
             Console.WriteLine(city);
@@ -32,7 +33,7 @@ class Program
         string chosenCity;
         while (true)
         {
-            Console.Write("Enter your choice: ");
+            Console.Write(Constants.menuChoice);
             chosenCity = Console.ReadLine();
             if (cities.ContainsKey(chosenCity))
             {
@@ -40,7 +41,7 @@ class Program
             }
             else
             {
-                Console.WriteLine("Invalid choice. Please enter a city from the list.");
+                Console.WriteLine(Constants.cityInvalid);
             }
         }
 
@@ -48,40 +49,40 @@ class Program
 
         while (true)
         {
-            Console.WriteLine("1. Log weather");
-            Console.WriteLine("2. View logs");
-            Console.WriteLine("3. Exit");
-            Console.Write("Enter your choice: ");
+            Console.WriteLine(Constants.menuOptionOne);
+            Console.WriteLine(Constants.menuOptionTwo);
+            Console.WriteLine(Constants.menuOptionThree);
+            Console.Write(Constants.menuChoice);
             string choice = Console.ReadLine();
 
-            if (choice == "1")
+            if (choice == Constants.menuChoiceOne)
             {
                 await LogWeather(coordinates);
             }
-            else if (choice == "2")
+            else if (choice == Constants.menuChoiceTwo)
             {
                 ViewLogs();
             }
-            else if (choice == "3")
+            else if (choice == Constants.menuChoiceThree)
             {
                 break;
             }
             else
             {
-                Console.WriteLine("Invalid choice. Please enter 1, 2, or 3.");
+                Console.WriteLine(Constants.menuChoiceInvalid);
             }
         }
     }
 
     static async Task LogWeather((string Latitude, string Longitude) coordinates)
     {
-        Console.Write("Enter the date (yyyy-mm-dd): ");
+        Console.Write(Constants.datePrompt);
         string date = Console.ReadLine();
-        Console.Write("Enter the temperature: ");
+        Console.Write(Constants.temperaturePrompt);
         double temperature = double.Parse(Console.ReadLine());
-        Console.Write("Enter the wind speed: ");
+        Console.Write(Constants.windSpeedPrompt);
         double windSpeed = double.Parse(Console.ReadLine());
-        Console.Write("Enter the humidity: ");
+        Console.Write(Constants.humidityPrompt);
         double humidity = double.Parse(Console.ReadLine());
 
         Details userWeatherDetails = new Details
@@ -94,17 +95,13 @@ class Program
         Details apiWeatherDetails = await FetchWeatherData(date, coordinates);
         if (apiWeatherDetails != null)
         {
-            Console.WriteLine($"API data for {date}:");
-            Console.WriteLine($"Temperature: {apiWeatherDetails.air_temperature}");
-            Console.WriteLine($"Wind speed: {apiWeatherDetails.wind_speed}");
-            Console.WriteLine($"Humidity: {apiWeatherDetails.relative_humidity}");
+            Console.Write(string.Format(Constants.logEntryFormat, date, apiWeatherDetails.air_temperature, apiWeatherDetails.wind_speed, apiWeatherDetails.relative_humidity));
         }
         else
         {
-            Console.WriteLine("No API data found for the specified date.");
+            Console.WriteLine(Constants.emptyAPIResponse);
         }
 
-        // Save the user's weather data to a JSON file
         var weatherLogs = new Dictionary<string, Details>();
         if (File.Exists(logFilePath))
         {
@@ -116,42 +113,40 @@ class Program
 
     static void ViewLogs()
     {
-        Console.WriteLine("1. Daily view");
-        Console.WriteLine("2. Weekly view");
-        Console.WriteLine("3. Monthly view");
-        Console.Write("Enter your choice: ");
+        Console.WriteLine(Constants.logViewOptions);
+        Console.Write(Constants.menuChoice);
         string choice = Console.ReadLine();
 
-        if (choice == "1")
+        if (choice == Constants.menuChoiceOne)
         {
-            Console.Write("Enter the date (yyyy-mm-dd) of the log you want to view: ");
+            Console.Write(Constants.logViewDateEnter);
             string date = Console.ReadLine();
             DisplayLogsForDate(date);
         }
-        else if (choice == "2")
+        else if (choice == Constants.menuChoiceTwo)
         {
-            Console.Write("Enter the start date (yyyy-mm-dd) of the week you want to view: ");
+            Console.Write(Constants.logViewDateEnter);
             string startDate = Console.ReadLine();
             for (int i = 0; i < 7; i++)
             {
-                string date = DateTime.Parse(startDate).AddDays(i).ToString("yyyy-MM-dd");
+                string date = DateTime.Parse(startDate).AddDays(i).ToString(Constants.logViewWeeklyParse);
                 DisplayLogsForDate(date);
             }
         }
-        else if (choice == "3")
+        else if (choice == Constants.menuChoiceThree)
         {
-            Console.Write("Enter the month and year (yyyy-mm) you want to view: ");
+            Console.Write(Constants.logViewMonthYearEnter);
             string monthYear = Console.ReadLine();
             int daysInMonth = DateTime.DaysInMonth(int.Parse(monthYear.Split('-')[0]), int.Parse(monthYear.Split('-')[1]));
             for (int i = 1; i <= daysInMonth; i++)
             {
-                string date = $"{monthYear}-{i.ToString("D2")}";
+                string date = $"{monthYear}-{i:D2}";
                 DisplayLogsForDate(date);
             }
         }
         else
         {
-            Console.WriteLine("Invalid choice. Please enter 1, 2, or 3.");
+            Console.WriteLine(Constants.menuChoiceInvalid);
         }
     }
 
@@ -163,26 +158,24 @@ class Program
             if (weatherLogs.ContainsKey(date))
             {
                 Details weatherDetails = weatherLogs[date];
-                Console.WriteLine($"Date: {date}");
-                Console.WriteLine($"Temperature: {weatherDetails.air_temperature}");
-                Console.WriteLine($"Wind speed: {weatherDetails.wind_speed}");
-                Console.WriteLine($"Humidity: {weatherDetails.relative_humidity}");
+                Console.Write(string.Format(Constants.logEntryFormat, date, weatherDetails.air_temperature, weatherDetails.wind_speed, weatherDetails.relative_humidity));
             }
+
             else
             {
-                Console.WriteLine($"No log found for {date}.");
+                Console.Write(string.Format(Constants.logViewNoLogsDate, date));
             }
         }
         else
         {
-            Console.WriteLine("No logs found.");
+            Console.WriteLine(Constants.logViewNoLogs);
         }
     }
 
 
     public async static Task<Details> FetchWeatherData(string date, (string Latitude, string Longitude) coordinates)
     {
-        string url = $"https://api.met.no/weatherapi/locationforecast/2.0/compact?lat={coordinates.Latitude}&lon={coordinates.Longitude}";
+        string url = string.Format(Constants.WeatherApiUrl, coordinates.Latitude, coordinates.Longitude);
         try
         {
             HttpResponseMessage response = await client.GetAsync(url);
@@ -199,8 +192,8 @@ class Program
         }
         catch (Exception e)
         {
-            Console.WriteLine("\nException Caught!");
-            Console.WriteLine("Message :{0} ", e.Message);
+            Console.WriteLine(Constants.fetchWeatherDataException);
+            Console.Write(string.Format(Constants.fetchWeatherDataErrorMessage, e.Message));
             return null;
         }
     }
