@@ -5,11 +5,11 @@ using System.Globalization;
 class Program
 {
     static HttpClient client = new HttpClient();
-    static string logFilePath = Constants.LogFilePath;
+    static string logFilePath = Constants.logFilePath;
     static async Task Main(string[] args)
     {
         Console.Clear();
-        client.DefaultRequestHeaders.UserAgent.ParseAdd(Constants.UserAgent);
+        client.DefaultRequestHeaders.UserAgent.ParseAdd(Constants.userAgent);
 
         Console.WriteLine(Constants.cityChoose);
         foreach (var city in CityCoords.cities.Keys)
@@ -60,6 +60,7 @@ class Program
             }
             else
             {
+                Console.Clear();
                 Console.WriteLine(Constants.menuChoiceInvalid);
             }
         }
@@ -172,42 +173,71 @@ class Program
 
     static void ViewLogs()
     {
-        Console.Clear();
-        Console.WriteLine(Constants.logViewOptions);
-        string choice = Console.ReadLine() ?? "";
-        if (choice == "1")
+        while (true)
         {
             Console.Clear();
-            Console.Write("Enter the date (yyyy-mm-dd) of the log you want to view: ");
-            string date = Console.ReadLine();
-            DisplayLogsForDate(date);
-        }
-        else if (choice == "2")
-        {
-            Console.Clear();
-            Console.Write("Enter the start date (yyyy-mm-dd) of the week you want to view: ");
-            string startDate = Console.ReadLine();
-            for (int i = 0; i < 7; i++)
+            Console.WriteLine(Constants.logViewOptions);
+            string choice = Console.ReadLine() ?? "";
+
+            if (choice == Constants.menuChoiceOne)
             {
-                string date = DateTime.Parse(startDate).AddDays(i).ToString("yyyy-MM-dd");
-                DisplayLogsForDate(date);
+                Console.Clear();
+                Console.Write(Constants.logViewDateEnter);
+                string date = Console.ReadLine();
+                if (DateTime.TryParseExact(date, Constants.logViewWeeklyParse, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+                {
+                    DisplayLogsForDate(date);
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine(Constants.invalidDateFormat);
+                }
             }
-        }
-        else if (choice == "3")
-        {
-            Console.Clear();
-            Console.Write("Enter the month and year (yyyy-mm) you want to view: ");
-            string monthYear = Console.ReadLine();
-            int daysInMonth = DateTime.DaysInMonth(int.Parse(monthYear.Split('-')[0]), int.Parse(monthYear.Split('-')[1]));
-            for (int i = 1; i <= daysInMonth; i++)
+            else if (choice == Constants.menuChoiceTwo)
             {
-                string date = $"{monthYear}-{i:D2}";
-                DisplayLogsForDate(date);
+                Console.Clear();
+                Console.Write(Constants.logViewDateEnter);
+                string startDate = Console.ReadLine();
+                if (DateTime.TryParseExact(startDate, Constants.logViewWeeklyParseCapitalized, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+                {
+                    for (int i = 0; i < 7; i++)
+                    {
+                        string date = DateTime.Parse(startDate).AddDays(i).ToString(Constants.logViewWeeklyParseCapitalized);
+                        DisplayLogsForDate(date);
+                    }
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine(Constants.invalidDateFormat);
+                }
             }
-        }
-        else
-        {
-            Console.WriteLine("Invalid choice. Please enter 1, 2, or 3.");
+            else if (choice == Constants.menuChoiceThree)
+            {
+                Console.Clear();
+                Console.Write(Constants.logViewMonthYearEnter);
+                string monthYear = Console.ReadLine();
+                if (DateTime.TryParseExact(monthYear, Constants.logViewMonthlyParse, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+                {
+                    int daysInMonth = DateTime.DaysInMonth(int.Parse(monthYear.Split(Constants.hifen)[0]), int.Parse(monthYear.Split(Constants.hifen)[1]));
+                    for (int i = 1; i <= daysInMonth; i++)
+                    {
+                        string date = $"{monthYear}-{i:D2}";
+                        DisplayLogsForDate(date);
+                    }
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine(Constants.invalidDateFormatMonthly);
+                }
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine(Constants.menuChoiceInvalid);
+            }
         }
         Console.WriteLine(Constants.pressEnterToReturn);
         while (Console.ReadKey(true).Key != ConsoleKey.Enter) { }
@@ -240,7 +270,7 @@ class Program
 
     public async static Task<Details> FetchWeatherData(string date, (string Latitude, string Longitude) coordinates)
     {
-        string url = string.Format(Constants.WeatherApiUrl, coordinates.Latitude, coordinates.Longitude);
+        string url = string.Format(Constants.weatherApiUrl, coordinates.Latitude, coordinates.Longitude);
         try
         {
             HttpResponseMessage response = await client.GetAsync(url);

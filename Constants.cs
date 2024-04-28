@@ -2,9 +2,10 @@ using System.Runtime.CompilerServices;
 
 public static class Constants
 {
-    public const string LogFilePath = "weatherLogs.json";
-    public const string UserAgent = "Hugo's WeatherLogApp";
-    public const string WeatherApiUrl = "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat={0}&lon={1}";
+    public const string logFilePath = "weatherLogs.json";
+    public const string userAgent = "Hugo's WeatherLogApp";
+    public const string weatherApiUrl = "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat={0}&lon={1}";
+    public const string hifen = "-";
 
     public const string cityChoose = "Choose a city from the list:\n";
     public const string cityInvalid = "Invalid choice. Please enter a city from the list.";
@@ -31,6 +32,7 @@ public static class Constants
     public const string logViewOptions = "1. View logs for a specific date\n2. View logs for a week\n3. View logs for a month\n";
     public const string logViewDateEnter = "Enter the date (yyyy-mm-dd) of the log you want to view: ";
     public const string logViewWeeklyParse = "yyyy-mm-dd";
+    public const string logViewWeeklyParseCapitalized = "yyyy-MM-dd";
     public const string logViewMonthlyParse = "yyyy-mm";
     public const string logViewMonthYearEnter = "Enter the month and year (yyyy-mm) you want to view: ";
     public const string logViewDate = "Date: {0}. Temperature: {1}, Wind Speed: {2}, Humidity: {3}";
@@ -43,6 +45,7 @@ public static class Constants
     public const string pressEnterToReturn = "\nPress Enter to return to the main menu.";
 
     public const string invalidDateFormat = "Invalid date format. Please enter in yyyy-mm-dd format.";
+    public const string invalidDateFormatMonthly = "Invalid date format. Please enter in yyyy-mm format.";
     public const string invalidTemperature = "Invalid temperature. Please enter a number between -50 and 50.";
     public const string invalidWindSpeed = "Invalid wind speed. Please enter a number between 0 and 100.";
     public const string invalidHumidity = "Invalid humidity. Please enter a number between 0 and 100.";
