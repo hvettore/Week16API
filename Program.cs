@@ -137,7 +137,7 @@ class Program
             relative_humidity = humidity
         };
 
-        Details apiWeatherDetails = await FetchWeatherData(date, coordinates);
+        Details? apiWeatherDetails = await FetchWeatherData(date, coordinates);
         if (apiWeatherDetails != null)
         {
             Console.Clear();
@@ -264,7 +264,7 @@ class Program
         }
     }
 
-    public async static Task<Details> FetchWeatherData(string date, (string Latitude, string Longitude) coordinates)
+    public async static Task<Details?> FetchWeatherData(string date, (string Latitude, string Longitude) coordinates)
     {
         string url = string.Format(Constants.weatherApiUrl, coordinates.Latitude, coordinates.Longitude);
         try
@@ -272,8 +272,8 @@ class Program
             HttpResponseMessage response = await client.GetAsync(url);
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
-            WeatherForecast forecast = JsonConvert.DeserializeObject<WeatherForecast>(responseBody);
-            Details weatherDetails = forecast.properties.timeseries
+            WeatherForecast? forecast = JsonConvert.DeserializeObject<WeatherForecast>(responseBody);
+            Details? weatherDetails = forecast?.properties.timeseries
                 .Where(t => t.time.Date == DateTime.Parse(date).Date)
                 .Select(t => t.data.instant.details)
                 .FirstOrDefault();
