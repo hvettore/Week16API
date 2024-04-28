@@ -183,7 +183,7 @@ class Program
             {
                 Console.Clear();
                 Console.Write(Constants.logViewDateEnter);
-                string date = Console.ReadLine();
+                string date = Console.ReadLine() ?? "";
                 if (DateTime.TryParseExact(date, Constants.logViewWeeklyParse, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
                 {
                     DisplayLogsForDate(date);
@@ -198,7 +198,7 @@ class Program
             {
                 Console.Clear();
                 Console.Write(Constants.logViewDateEnter);
-                string startDate = Console.ReadLine();
+                string startDate = Console.ReadLine() ?? "";
                 if (DateTime.TryParseExact(startDate, Constants.logViewWeeklyParseCapitalized, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
                 {
                     for (int i = 0; i < 7; i++)
@@ -217,7 +217,7 @@ class Program
             {
                 Console.Clear();
                 Console.Write(Constants.logViewMonthYearEnter);
-                string monthYear = Console.ReadLine();
+                string monthYear = Console.ReadLine() ?? "";
                 if (DateTime.TryParseExact(monthYear, Constants.logViewMonthlyParse, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
                 {
                     int daysInMonth = DateTime.DaysInMonth(int.Parse(monthYear.Split(Constants.hifen)[0]), int.Parse(monthYear.Split(Constants.hifen)[1]));
@@ -249,22 +249,18 @@ class Program
         if (File.Exists(logFilePath))
         {
             var weatherLogs = JsonConvert.DeserializeObject<Dictionary<string, Details>>(File.ReadAllText(logFilePath));
-            if (weatherLogs.ContainsKey(date))
+            if (weatherLogs != null && weatherLogs.TryGetValue(date, out Details? weatherDetails))
             {
-                Details weatherDetails = weatherLogs[date];
                 if (weatherDetails != null)
                 {
-                    Console.WriteLine($"Date: {date}");
-                    Console.WriteLine($"Temperature: {weatherDetails.air_temperature} °C");
-                    Console.WriteLine($"Wind speed: {weatherDetails.wind_speed} m/s");
-                    Console.WriteLine($"Humidity: {weatherDetails.relative_humidity} %");
+                    Console.Write(string.Format(Constants.logViewDate, date, weatherDetails.air_temperature, weatherDetails.wind_speed, weatherDetails.relative_humidity));
                     Console.WriteLine();
                 }
             }
         }
         else
         {
-            Console.WriteLine("No logs found.");
+            Console.WriteLine(Constants.logViewNoLogs);
         }
     }
 
