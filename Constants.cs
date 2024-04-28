@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 public static class Constants
 {
     public const string LogFilePath = "weatherLogs.json";
@@ -22,7 +24,8 @@ public static class Constants
     public const string windSpeedPrompt = "Enter the wind speed: ";
     public const string humidityPrompt = "Enter the humidity: ";
 
-    public const string logEntryFormat = "API data for: {0}. Temperature: {1}, Wind Speed: {2}, Humidity: {3}";
+    public const string logEntryUserFormat = "User logged data for: {0}. Temperature: {1}, Wind Speed: {2}, Humidity: {3}\n";
+    public const string logEntryAPIFormat = "API data for: {0}. Temperature: {1}, Wind Speed: {2}, Humidity: {3}\n";
     public const string emptyAPIResponse = "No API data available for this date.";
 
     public const string logViewOptions = "1. View logs for a specific date\n2. View logs for a week\n3. View logs for a month\n";
@@ -39,6 +42,16 @@ public static class Constants
     public const string pressEnterToReturn = "\nPress Enter to return to the main menu.";
 
     public const string invalidDateFormat = "Invalid date format. Please enter in yyyy-mm-dd format.";
+    public const string invalidTemperature = "Invalid temperature. Please enter a number between -50 and 50.";
+    public const string invalidWindSpeed = "Invalid wind speed. Please enter a number between 0 and 100.";
+    public const string invalidHumidity = "Invalid humidity. Please enter a number between 0 and 100.";
+
+    public const string doesTemperatureMatch = "Does the temperature match the API data?: ";
+    public const string doesWindSpeedMatch = "Does the wind speed match the API data?: ";
+    public const string doesHumidityMatch = "Does the humidity match the API data?: ";
+
+    public const string matchingInfoYes = "Yes";
+    public const string matchingInfoNo = "No";
 }
 
 public static class CityCoords
