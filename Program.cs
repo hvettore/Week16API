@@ -16,7 +16,7 @@ class Program
             {"Kristiansand", ("58.1464", "7.9950")},
             {"New York City", ("40.7128", "-74.0060")},
             {"Tokyo", ("35.6895", "139.6917")},
-            {"London Kingdom", ("51.5074", "0.1278")},
+            {"London", ("51.5074", "0.1278")},
             {"Sydney", ("-33.8688", "151.2093")},
             {"Cairo", ("30.0444", "31.2357")},
             {"Rio de Janeiro", ("-22.9068", "-43.1729")},
@@ -116,22 +116,61 @@ class Program
 
     static void ViewLogs()
     {
-        Console.Write("Enter the date (yyyy-mm-dd) of the log you want to view: ");
-        string date = Console.ReadLine();
+        Console.WriteLine("1. Daily view");
+        Console.WriteLine("2. Weekly view");
+        Console.WriteLine("3. Monthly view");
+        Console.Write("Enter your choice: ");
+        string choice = Console.ReadLine();
 
+        if (choice == "1")
+        {
+            Console.Write("Enter the date (yyyy-mm-dd) of the log you want to view: ");
+            string date = Console.ReadLine();
+            DisplayLogsForDate(date);
+        }
+        else if (choice == "2")
+        {
+            Console.Write("Enter the start date (yyyy-mm-dd) of the week you want to view: ");
+            string startDate = Console.ReadLine();
+            for (int i = 0; i < 7; i++)
+            {
+                string date = DateTime.Parse(startDate).AddDays(i).ToString("yyyy-MM-dd");
+                DisplayLogsForDate(date);
+            }
+        }
+        else if (choice == "3")
+        {
+            Console.Write("Enter the month and year (yyyy-mm) you want to view: ");
+            string monthYear = Console.ReadLine();
+            int daysInMonth = DateTime.DaysInMonth(int.Parse(monthYear.Split('-')[0]), int.Parse(monthYear.Split('-')[1]));
+            for (int i = 1; i <= daysInMonth; i++)
+            {
+                string date = $"{monthYear}-{i.ToString("D2")}";
+                DisplayLogsForDate(date);
+            }
+        }
+        else
+        {
+            Console.WriteLine("Invalid choice. Please enter 1, 2, or 3.");
+        }
+    }
+
+    static void DisplayLogsForDate(string date)
+    {
         if (File.Exists(logFilePath))
         {
             var weatherLogs = JsonConvert.DeserializeObject<Dictionary<string, Details>>(File.ReadAllText(logFilePath));
             if (weatherLogs.ContainsKey(date))
             {
                 Details weatherDetails = weatherLogs[date];
+                Console.WriteLine($"Date: {date}");
                 Console.WriteLine($"Temperature: {weatherDetails.air_temperature}");
                 Console.WriteLine($"Wind speed: {weatherDetails.wind_speed}");
                 Console.WriteLine($"Humidity: {weatherDetails.relative_humidity}");
             }
             else
             {
-                Console.WriteLine("No log found for the specified date.");
+                Console.WriteLine($"No log found for {date}.");
             }
         }
         else
