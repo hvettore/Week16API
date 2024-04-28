@@ -6,7 +6,6 @@ class Program
 {
     static HttpClient client = new HttpClient();
     static string logFilePath = Constants.LogFilePath;
-
     static async Task Main(string[] args)
     {
         Console.Clear();
@@ -69,7 +68,6 @@ class Program
     static async Task LogWeather((string Latitude, string Longitude) coordinates)
     {
         Console.Clear();
-
         string date;
         while (true)
         {
@@ -157,7 +155,6 @@ class Program
         {
             Console.WriteLine(Constants.emptyAPIResponse);
         }
-
         var weatherLogs = new Dictionary<string, Details>();
         if (File.Exists(logFilePath))
         {
@@ -168,7 +165,6 @@ class Program
             weatherLogs[date] = userWeatherDetails;
             File.WriteAllText(logFilePath, JsonConvert.SerializeObject(weatherLogs));
         }
-
         Console.WriteLine(Constants.pressEnterToReturn);
         while (Console.ReadKey(true).Key != ConsoleKey.Enter) { }
         Console.Clear();
@@ -179,59 +175,40 @@ class Program
         Console.Clear();
         Console.WriteLine(Constants.logViewOptions);
         string choice = Console.ReadLine() ?? "";
-
         if (choice == Constants.menuChoiceOne)
         {
             Console.Clear();
-            string date = SelectDate();
+            string date;
+            while (true)
+            {
+                Console.Write(Constants.datePrompt);
+                date = Console.ReadLine() ?? string.Empty;
+                if (DateTime.TryParseExact(date, Constants.logViewWeeklyParse, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+                {
+                    break;
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine(Constants.invalidDateFormat);
+                }
+            }
             DisplayLogsForDate(date);
         }
-
-
         else if (choice == Constants.menuChoiceTwo)
         {
             Console.Clear();
             Console.Write(Constants.logViewDateEnter);
             string startDate = Console.ReadLine();
 
-
-            for (int i = 0; i < 7; i++)
+            DateTime parsedDate;
+            if (DateTime.TryParseExact(startDate, Constants.logViewWeeklyParse, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
             {
-                string date = DateTime.Parse(startDate).AddDays(i).ToString(Constants.logViewWeeklyParse);
-                DisplayLogsForDate(date);
-            }
-        }
-
-
-        else if (choice == Constants.menuChoiceThree)
-        {
-            Console.Write(Constants.logViewMonthYearEnter);
-            string monthYear = Console.ReadLine();
-            int daysInMonth = DateTime.DaysInMonth(int.Parse(monthYear.Split('-')[0]), int.Parse(monthYear.Split('-')[1]));
-            for (int i = 1; i <= daysInMonth; i++)
-            {
-                string date = $"{monthYear}-{i:D2}";
-                DisplayLogsForDate(date);
-            }
-        }
-
-
-        else
-        {
-            Console.WriteLine(Constants.menuChoiceInvalid);
-        }
-    }
-
-    static string SelectDate()
-    {
-        string date;
-        while (true)
-        {
-            Console.Write(Constants.datePrompt);
-            date = Console.ReadLine() ?? string.Empty;
-            if (DateTime.TryParseExact(date, Constants.logViewWeeklyParse, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
-            {
-                break;
+                for (int i = 0; i < 7; i++)
+                {
+                    string date = parsedDate.AddDays(i).ToString(Constants.logViewWeeklyParse);
+                    DisplayLogsForDate(date);
+                }
             }
             else
             {
@@ -239,7 +216,27 @@ class Program
                 Console.WriteLine(Constants.invalidDateFormat);
             }
         }
-        return date;
+        else if (choice == Constants.menuChoiceThree)
+        {
+            Console.Write(Constants.logViewMonthYearEnter);
+            string monthYear = Console.ReadLine();
+
+            DateTime parsedMonthYear;
+            if (DateTime.TryParseExact(monthYear, Constants.logViewMonthlyParse, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedMonthYear))
+            {
+                int daysInMonth = DateTime.DaysInMonth(parsedMonthYear.Year, parsedMonthYear.Month);
+                for (int i = 1; i <= daysInMonth; i++)
+                {
+                    string date = $"{monthYear}-{i:D2}";
+                    DisplayLogsForDate(date);
+                }
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine(Constants.menuChoiceInvalid);
+            }
+        }
     }
 
     static void DisplayLogsForDate(string date)
@@ -266,7 +263,6 @@ class Program
         Console.Clear();
     }
 
-
     public async static Task<Details> FetchWeatherData(string date, (string Latitude, string Longitude) coordinates)
     {
         string url = string.Format(Constants.WeatherApiUrl, coordinates.Latitude, coordinates.Longitude);
@@ -275,7 +271,6 @@ class Program
             HttpResponseMessage response = await client.GetAsync(url);
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
-
             WeatherForecast forecast = JsonConvert.DeserializeObject<WeatherForecast>(responseBody);
             Details weatherDetails = forecast.properties.timeseries
                 .Where(t => t.time.Date == DateTime.Parse(date).Date)
@@ -292,4 +287,3 @@ class Program
         }
     }
 }
-

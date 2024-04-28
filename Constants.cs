@@ -31,6 +31,7 @@ public static class Constants
     public const string logViewOptions = "1. View logs for a specific date\n2. View logs for a week\n3. View logs for a month\n";
     public const string logViewDateEnter = "Enter the date (yyyy-mm-dd) of the log you want to view: ";
     public const string logViewWeeklyParse = "yyyy-mm-dd";
+    public const string logViewMonthlyParse = "yyyy-mm";
     public const string logViewMonthYearEnter = "Enter the month and year (yyyy-mm) you want to view: ";
     public const string logViewDate = "Date: {0}. Temperature: {1}, Wind Speed: {2}, Humidity: {3}";
     public const string logViewNoLogsDate = "No logs available for {1}.";
