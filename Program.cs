@@ -256,6 +256,14 @@ class Program
                     Console.Write(string.Format(Constants.logViewDate, date, weatherDetails.air_temperature, weatherDetails.wind_speed, weatherDetails.relative_humidity));
                     Console.WriteLine();
                 }
+                else
+                {
+                    Console.WriteLine(Constants.logViewNoLogsDate + date);
+                }
+            }
+            else
+            {
+                Console.WriteLine(Constants.logViewNoLogsDate + date);
             }
         }
         else

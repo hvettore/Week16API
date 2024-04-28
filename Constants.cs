@@ -36,7 +36,7 @@ public static class Constants
     public const string logViewMonthlyParse = "yyyy-mm";
     public const string logViewMonthYearEnter = "Enter the month and year (yyyy-mm) you want to view: ";
     public const string logViewDate = "Date: {0}. Temperature: {1} °C, Wind Speed: {2} m/s, Humidity: {3} %";
-    public const string logViewNoLogsDate = "No logs available for {1}.";
+    public const string logViewNoLogsDate = "No user logs available for ";
     public const string logViewNoLogs = "No logs found.";
 
     public const string fetchWeatherDataException = "\nException Caught!";
