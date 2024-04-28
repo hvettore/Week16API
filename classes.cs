@@ -7,26 +7,26 @@ public class Details
 
 public class Instant
 {
-    public Details? details { get; set; }
+    public Details details { get; set; }
 }
 
 public class Data
 {
-    public Instant? instant { get; set; }
+    public Instant instant { get; set; }
 }
 
 public class TimeSery
 {
     public DateTime time { get; set; }
-    public Data? data { get; set; }
+    public Data data { get; set; }
 }
 
 public class Properties
 {
-    public List<TimeSery>? timeseries { get; set; }
+    public List<TimeSery> timeseries { get; set; }
 }
 
 public class WeatherForecast
 {
-    public Properties? properties { get; set; }
+    public Properties properties { get; set; }
 }
