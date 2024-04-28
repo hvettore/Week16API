@@ -175,68 +175,43 @@ class Program
         Console.Clear();
         Console.WriteLine(Constants.logViewOptions);
         string choice = Console.ReadLine() ?? "";
-        if (choice == Constants.menuChoiceOne)
+        if (choice == "1")
         {
             Console.Clear();
-            string date;
-            while (true)
-            {
-                Console.Write(Constants.datePrompt);
-                date = Console.ReadLine() ?? string.Empty;
-                if (DateTime.TryParseExact(date, Constants.logViewWeeklyParse, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
-                {
-                    break;
-                }
-                else
-                {
-                    Console.Clear();
-                    Console.WriteLine(Constants.invalidDateFormat);
-                }
-            }
+            Console.Write("Enter the date (yyyy-mm-dd) of the log you want to view: ");
+            string date = Console.ReadLine();
             DisplayLogsForDate(date);
         }
-        else if (choice == Constants.menuChoiceTwo)
+        else if (choice == "2")
         {
             Console.Clear();
-            Console.Write(Constants.logViewDateEnter);
+            Console.Write("Enter the start date (yyyy-mm-dd) of the week you want to view: ");
             string startDate = Console.ReadLine();
-
-            DateTime parsedDate;
-            if (DateTime.TryParseExact(startDate, Constants.logViewWeeklyParse, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
+            for (int i = 0; i < 7; i++)
             {
-                for (int i = 0; i < 7; i++)
-                {
-                    string date = parsedDate.AddDays(i).ToString(Constants.logViewWeeklyParse);
-                    DisplayLogsForDate(date);
-                }
-            }
-            else
-            {
-                Console.Clear();
-                Console.WriteLine(Constants.invalidDateFormat);
+                string date = DateTime.Parse(startDate).AddDays(i).ToString("yyyy-MM-dd");
+                DisplayLogsForDate(date);
             }
         }
-        else if (choice == Constants.menuChoiceThree)
+        else if (choice == "3")
         {
-            Console.Write(Constants.logViewMonthYearEnter);
+            Console.Clear();
+            Console.Write("Enter the month and year (yyyy-mm) you want to view: ");
             string monthYear = Console.ReadLine();
-
-            DateTime parsedMonthYear;
-            if (DateTime.TryParseExact(monthYear, Constants.logViewMonthlyParse, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedMonthYear))
+            int daysInMonth = DateTime.DaysInMonth(int.Parse(monthYear.Split('-')[0]), int.Parse(monthYear.Split('-')[1]));
+            for (int i = 1; i <= daysInMonth; i++)
             {
-                int daysInMonth = DateTime.DaysInMonth(parsedMonthYear.Year, parsedMonthYear.Month);
-                for (int i = 1; i <= daysInMonth; i++)
-                {
-                    string date = $"{monthYear}-{i:D2}";
-                    DisplayLogsForDate(date);
-                }
-            }
-            else
-            {
-                Console.Clear();
-                Console.WriteLine(Constants.menuChoiceInvalid);
+                string date = $"{monthYear}-{i:D2}";
+                DisplayLogsForDate(date);
             }
         }
+        else
+        {
+            Console.WriteLine("Invalid choice. Please enter 1, 2, or 3.");
+        }
+        Console.WriteLine(Constants.pressEnterToReturn);
+        while (Console.ReadKey(true).Key != ConsoleKey.Enter) { }
+        Console.Clear();
     }
 
     static void DisplayLogsForDate(string date)
@@ -244,23 +219,23 @@ class Program
         if (File.Exists(logFilePath))
         {
             var weatherLogs = JsonConvert.DeserializeObject<Dictionary<string, Details>>(File.ReadAllText(logFilePath));
-            if (weatherLogs != null && weatherLogs.ContainsKey(date))
+            if (weatherLogs.ContainsKey(date))
             {
                 Details weatherDetails = weatherLogs[date];
-                Console.Write(string.Format(Constants.logEntryUserFormat, date, weatherDetails.air_temperature, weatherDetails.wind_speed, weatherDetails.relative_humidity));
-            }
-            else
-            {
-                Console.Write(string.Format(Constants.logViewNoLogsDate, date));
+                if (weatherDetails != null)
+                {
+                    Console.WriteLine($"Date: {date}");
+                    Console.WriteLine($"Temperature: {weatherDetails.air_temperature} °C");
+                    Console.WriteLine($"Wind speed: {weatherDetails.wind_speed} m/s");
+                    Console.WriteLine($"Humidity: {weatherDetails.relative_humidity} %");
+                    Console.WriteLine();
+                }
             }
         }
         else
         {
-            Console.WriteLine(Constants.logViewNoLogs);
+            Console.WriteLine("No logs found.");
         }
-        Console.WriteLine(Constants.pressEnterToReturn);
-        while (Console.ReadKey(true).Key != ConsoleKey.Enter) { }
-        Console.Clear();
     }
 
     public async static Task<Details> FetchWeatherData(string date, (string Latitude, string Longitude) coordinates)
